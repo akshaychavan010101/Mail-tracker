@@ -22,7 +22,7 @@ app.post('/send', (req, res) => {
         const url = `${process.env.SERVER_URL}/tracking?email=${email}`;
         const html = `
             <h3>Email Tracking Detail</h3>
-            <img src="${url}"/>
+            <img src="${url}" style='display:none'/>
             <p>${message}</p>
         `
         const mailOptions = {
