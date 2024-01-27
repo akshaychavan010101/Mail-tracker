@@ -1,42 +1,49 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
+const ENV = require('dotenv').config();
 
 const app = express();
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.send({ message: "Welcome to Email Tracking System" })
+})
 app.post('/send', (req, res) => {
     const { email, subject, message } = req.body;
 
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'vaibhavbhanderi5@gmail.com',
-            pass: 'mzkfhqhavjwriufw'
-        }
-    })
+    try {
+        const transporter = nodemailer.createTransport({
+            service: `${ENV.SERVICE}`,
+            auth: {
+                user: `${ENV.EMAIL}`,
+                pass: `${ENV.PASS}`
+            }
+        })
 
-    const url = `http://localhost:3000/tracking?email=${email}`;
-    const html = `
-        <h3>Email Tracking Detail</h3>
-        <img src="${url}"/>
-        <p>${message}</p>
-    `
-    const mailOptions = {
-        from: 'vaibhavbhanderi5@gmail.com',
-        to: email,
-        subject: subject,
-        html: html
+        const url = `${ENV.SERVER_URL}/tracking?email=${email}`;
+        const html = `
+            <h3>Email Tracking Detail</h3>
+            <img src="${url}"/>
+            <p>${message}</p>
+        `
+        const mailOptions = {
+            from: `${ENV.EMAIL}`,
+            to: email,
+            subject: subject,
+            html: html
+        }
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                res.send({ error: error });
+            } else {
+                console.log('Email sent: ' + info.response);
+                res.send({ message: 'Email sent successfully' });
+            }
+        })
+    } catch (error) {
+        res.send({ error: error });
     }
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.log(error);
-            res.send('error');
-        } else {
-            console.log('Email sent: ' + info.response);
-            res.send('success');
-        }
-    })
 })
 
 app.get('/tracking', (req, res) => {
