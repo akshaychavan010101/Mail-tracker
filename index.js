@@ -1,6 +1,6 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
-const ENV = require('dotenv').config();
+require('dotenv').config();
 
 const app = express();
 app.use(express.json());
@@ -10,24 +10,23 @@ app.get('/', (req, res) => {
 })
 app.post('/send', (req, res) => {
     const { email, subject, message } = req.body;
-
     try {
         const transporter = nodemailer.createTransport({
-            service: `${ENV.SERVICE}`,
+            service: `${process.env.SERVICE}`,
             auth: {
-                user: `${ENV.EMAIL}`,
-                pass: `${ENV.PASS}`
+                user: `${process.env.EMAIL}`,
+                pass: `${process.env.PASS}`
             }
         })
 
-        const url = `${ENV.SERVER_URL}/tracking?email=${email}`;
+        const url = `${process.env.SERVER_URL}/tracking?email=${email}`;
         const html = `
             <h3>Email Tracking Detail</h3>
             <img src="${url}"/>
             <p>${message}</p>
         `
         const mailOptions = {
-            from: `${ENV.EMAIL}`,
+            from: `${process.env.EMAIL}`,
             to: email,
             subject: subject,
             html: html
